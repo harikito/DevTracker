@@ -12,18 +12,12 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
 
 def main_menu_kb(i18n: dict[str, str]) -> InlineKeyboardMarkup:
-    """Root navigation: projects, creation, and language switch."""
+    """Root navigation: projects list and language switch."""
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
             text=i18n["main_menu_btn"],
             callback_data="proj_list",
-        )
-    )
-    builder.row(
-        InlineKeyboardButton(
-            text=i18n["create_project_btn"],
-            callback_data="proj_create",
         )
     )
     builder.row(
@@ -39,7 +33,7 @@ def projects_list_kb(
     projects: list[dict],
     i18n: dict[str, str],
 ) -> InlineKeyboardMarkup:
-    """Dynamic list of user projects with a back button."""
+    """Project list with create action and back navigation."""
     builder = InlineKeyboardBuilder()
     untitled = i18n.get("untitled", "—")
     for project in projects:
@@ -51,6 +45,12 @@ def projects_list_kb(
                 callback_data=f"proj_view:{project_id}",
             )
         )
+    builder.row(
+        InlineKeyboardButton(
+            text=i18n["create_project_btn"],
+            callback_data="proj_create",
+        )
+    )
     builder.row(
         InlineKeyboardButton(
             text=i18n["back"],
@@ -80,9 +80,34 @@ def project_detail_kb(
     )
     builder.row(
         InlineKeyboardButton(
+            text=i18n["delete_project_btn"],
+            callback_data=f"proj_delete:{project_id}",
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
             text=i18n["back"],
             callback_data="proj_list",
         )
+    )
+    return builder.as_markup()
+
+
+def confirm_delete_kb(
+    project_id: str,
+    i18n: dict[str, str],
+) -> InlineKeyboardMarkup:
+    """Yes / No confirmation before deleting a project."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text=i18n["confirm_yes"],
+            callback_data=f"proj_delete_yes:{project_id}",
+        ),
+        InlineKeyboardButton(
+            text=i18n["confirm_no"],
+            callback_data=f"proj_delete_no:{project_id}",
+        ),
     )
     return builder.as_markup()
 

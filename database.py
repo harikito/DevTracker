@@ -223,6 +223,17 @@ def _fetch_project_by_id(project_id: str) -> dict | None:
     return data[0] if data else None
 
 
+def _delete_project(project_id: str) -> bool:
+    response = (
+        get_client()
+        .table("projects")
+        .delete()
+        .eq("id", project_id)
+        .execute()
+    )
+    return bool(response.data)
+
+
 def _insert_task(project_id: str, title: str) -> dict:
     payload = {
         "project_id": project_id,
@@ -365,6 +376,22 @@ async def get_project_by_id(project_id: str) -> dict | None:
     except Exception as exc:
         logger.error(
             "Failed to fetch project_id=%s | %s",
+            project_id,
+            _format_db_error(exc),
+        )
+        raise
+
+
+async def delete_project(project_id: str) -> bool:
+    """Delete a project by UUID. Related tasks are removed via CASCADE."""
+    try:
+        deleted = await _run_sync(_delete_project, project_id)
+        if not deleted:
+            logger.warning("No project deleted for project_id=%s", project_id)
+        return deleted
+    except Exception as exc:
+        logger.error(
+            "Failed to delete project_id=%s | %s",
             project_id,
             _format_db_error(exc),
         )

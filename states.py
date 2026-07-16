@@ -3,11 +3,15 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-class ProjectCreation(StatesGroup):
+class ProjectStates(StatesGroup):
     """Multi-step flow for creating a new project."""
 
     waiting_for_title = State()
     waiting_for_description = State()
+
+
+# Backward-compatible alias used by older imports.
+ProjectCreation = ProjectStates
 
 
 class TaskCreation(StatesGroup):

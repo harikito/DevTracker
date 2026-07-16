@@ -33,7 +33,20 @@ LOCALES: dict[str, dict[str, str]] = {
         ),
         "task_created": "✅ Задача создана!",
         "projects_header": "📁 <b>Твои проекты:</b>",
+        "project_detail": (
+            "📁 <b>{title}</b>\n\n"
+            "<i>Описание</i>\n{description}"
+        ),
         "tasks_header": "📋 <b>Задачи по проекту {title}:</b>\n\n{description}",
+        "delete_project_btn": "❌ Удалить проект",
+        "confirm_delete": (
+            "⚠️ Вы уверены, что хотите удалить проект "
+            "<b>{title}</b>?\n\n"
+            "Это действие нельзя отменить."
+        ),
+        "confirm_yes": "✅ Да",
+        "confirm_no": "✖️ Нет",
+        "project_deleted": "🗑 Проект удалён.",
         "select_lang": "Выберите язык / Select your language:",
         "lang_changed": "✅ Язык успешно изменен!",
         # Operational strings (errors / edge cases)
@@ -64,6 +77,7 @@ LOCALES: dict[str, dict[str, str]] = {
         "error_load_tasks": "Не удалось загрузить задачи. Попробуйте позже.",
         "error_toggle": "Не удалось обновить статус задачи.",
         "error_create_project": "Не удалось создать проект. Попробуйте позже.",
+        "error_delete_project": "Не удалось удалить проект. Попробуйте позже.",
         "error_create_task": "Не удалось создать задачу. Попробуйте позже.",
         "context_lost": (
             "Контекст проекта потерян. "
@@ -105,7 +119,20 @@ LOCALES: dict[str, dict[str, str]] = {
         ),
         "task_created": "✅ Task created!",
         "projects_header": "📁 <b>Your Projects:</b>",
+        "project_detail": (
+            "📁 <b>{title}</b>\n\n"
+            "<i>Description</i>\n{description}"
+        ),
         "tasks_header": "📋 <b>Tasks for {title}:</b>\n\n{description}",
+        "delete_project_btn": "❌ Delete Project",
+        "confirm_delete": (
+            "⚠️ Are you sure you want to delete project "
+            "<b>{title}</b>?\n\n"
+            "This action cannot be undone."
+        ),
+        "confirm_yes": "✅ Yes",
+        "confirm_no": "✖️ No",
+        "project_deleted": "🗑 Project deleted.",
         "select_lang": "Select your language / Выберите язык:",
         "lang_changed": "✅ Language updated successfully!",
         # Operational strings (errors / edge cases)
@@ -136,6 +163,7 @@ LOCALES: dict[str, dict[str, str]] = {
         "error_load_tasks": "Could not load tasks. Please try again later.",
         "error_toggle": "Could not update task status.",
         "error_create_project": "Could not create the project. Please try again later.",
+        "error_delete_project": "Could not delete the project. Please try again later.",
         "error_create_task": "Could not create the task. Please try again later.",
         "context_lost": (
             "Project context was lost. "

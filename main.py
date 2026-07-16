@@ -26,6 +26,7 @@ from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove, TelegramO
 import database as db
 from kb import (
     cancel_kb,
+    confirm_delete_kb,
     language_selection_kb,
     main_menu_kb,
     project_detail_kb,
@@ -33,7 +34,7 @@ from kb import (
     tasks_list_kb,
 )
 from locales import LOCALES, SUPPORTED_LANGS, get_i18n, normalize_lang
-from states import ProjectCreation, TaskCreation
+from states import ProjectStates, TaskCreation
 
 logging.basicConfig(
     level=logging.INFO,
@@ -150,7 +151,7 @@ async def _show_projects_list(
         await _safe_edit_text(
             target,
             text,
-            reply_markup=main_menu_kb(i18n),
+            reply_markup=projects_list_kb([], i18n),
         )
         return
 
@@ -178,7 +179,7 @@ async def _show_project_detail(
         await _safe_edit_text(
             target,
             i18n["project_not_found"],
-            reply_markup=main_menu_kb(i18n),
+            reply_markup=projects_list_kb([], i18n),
         )
         return
 
@@ -187,7 +188,7 @@ async def _show_project_detail(
     description = _escape_html(
         project.get("description") or i18n.get("no_description", "")
     )
-    text = i18n["tasks_header"].format(title=title, description=description)
+    text = i18n["project_detail"].format(title=title, description=description)
     await _safe_edit_text(
         target,
         text,
@@ -438,6 +439,102 @@ async def cb_project_view(
         )
 
 
+@router.callback_query(F.data.startswith("proj_delete_yes:"))
+async def cb_project_delete_confirm(
+    callback: CallbackQuery,
+    state: FSMContext,
+    i18n: dict,
+) -> None:
+    """Delete the project after explicit confirmation."""
+    await state.clear()
+    if callback.message is None or callback.data is None or callback.from_user is None:
+        await callback.answer()
+        return
+
+    project_id = callback.data.split(":", maxsplit=1)[1]
+    try:
+        deleted = await db.delete_project(project_id)
+        if not deleted:
+            await callback.answer(i18n["project_not_found"], show_alert=True)
+            await _show_projects_list(
+                callback.message,
+                callback.from_user.id,
+                i18n,
+            )
+            return
+
+        await callback.answer(i18n["project_deleted"])
+        await _show_projects_list(
+            callback.message,
+            callback.from_user.id,
+            i18n,
+        )
+    except Exception:
+        logger.exception("Failed to delete project_id=%s", project_id)
+        await callback.answer(i18n["error_delete_project"], show_alert=True)
+
+
+@router.callback_query(F.data.startswith("proj_delete_no:"))
+async def cb_project_delete_cancel(
+    callback: CallbackQuery,
+    state: FSMContext,
+    i18n: dict,
+) -> None:
+    """Cancel deletion and return to the project detail screen."""
+    await state.clear()
+    await callback.answer()
+    if callback.message is None or callback.data is None:
+        return
+
+    project_id = callback.data.split(":", maxsplit=1)[1]
+    try:
+        await _show_project_detail(callback.message, project_id, i18n)
+    except Exception:
+        logger.exception(
+            "Failed to reopen project after delete cancel: %s", project_id
+        )
+        await _safe_edit_text(
+            callback.message,
+            i18n["error_load_project"],
+            reply_markup=main_menu_kb(i18n),
+        )
+
+
+@router.callback_query(F.data.startswith("proj_delete:"))
+async def cb_project_delete_ask(
+    callback: CallbackQuery,
+    state: FSMContext,
+    i18n: dict,
+) -> None:
+    """Ask for delete confirmation before removing a project."""
+    await state.clear()
+    await callback.answer()
+    if callback.message is None or callback.data is None:
+        return
+
+    project_id = callback.data.split(":", maxsplit=1)[1]
+    try:
+        project = await db.get_project_by_id(project_id)
+        if project is None:
+            await _safe_edit_text(
+                callback.message,
+                i18n["project_not_found"],
+                reply_markup=main_menu_kb(i18n),
+            )
+            return
+
+        untitled = i18n.get("untitled", "—")
+        title = _escape_html(project.get("title") or untitled)
+        await _safe_edit_text(
+            callback.message,
+            i18n["confirm_delete"].format(title=title),
+            reply_markup=confirm_delete_kb(project_id, i18n),
+        )
+    except Exception:
+        logger.exception("Failed to open delete confirm for %s", project_id)
+        await callback.answer(i18n["error_delete_project"], show_alert=True)
+
+
 @router.callback_query(F.data.startswith("task_list:"))
 async def cb_tasks_list(
     callback: CallbackQuery,
@@ -505,14 +602,14 @@ async def cb_project_create(
     if callback.message is None:
         return
 
-    await state.set_state(ProjectCreation.waiting_for_title)
+    await state.set_state(ProjectStates.waiting_for_title)
     await callback.message.answer(
         i18n["project_title_prompt"],
         reply_markup=cancel_kb(i18n),
     )
 
 
-@router.message(ProjectCreation.waiting_for_title, F.text)
+@router.message(ProjectStates.waiting_for_title, F.text)
 async def process_project_title(
     message: Message,
     state: FSMContext,
@@ -534,11 +631,11 @@ async def process_project_title(
         return
 
     await state.update_data(title=title)
-    await state.set_state(ProjectCreation.waiting_for_description)
+    await state.set_state(ProjectStates.waiting_for_description)
     await message.answer(i18n["project_desc_prompt"])
 
 
-@router.message(ProjectCreation.waiting_for_description, F.text)
+@router.message(ProjectStates.waiting_for_description, F.text)
 async def process_project_description(
     message: Message,
     state: FSMContext,
