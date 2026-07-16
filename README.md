@@ -5,15 +5,19 @@
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-> 🇬🇧 **English** · 🇷🇺 [Русская версия](#-devtracker--multilingual-pet-project-tracker-bot-russian)
+[🇬🇧 English](#english-version) | [🇷🇺 Русская версия](#russian-version)
 
 ---
+
+<div id="english-version"></div>
 
 # 🇬🇧 DevTracker — Multilingual Pet-Project Tracker Bot
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
 ![Aiogram](https://img.shields.io/badge/Aiogram-3.x-blueviolet?logo=telegram&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
+
+[🇬🇧 English](#english-version) | [🇷🇺 Русская версия](#russian-version)
 
 An **asynchronous Telegram bot** that helps developers track their **pet projects** and related **tasks**.
 
@@ -161,12 +165,12 @@ create policy "tasks_all" on public.tasks
 
 ---
 
-<p align="center">
-  <a href="#-devtracker--multilingual-pet-project-tracker-bot-russian">⬇️ Switch to Russian</a>
-</p>
+[🇷🇺 Русская версия](#russian-version)
 
 ---
 ---
+
+<div id="russian-version"></div>
 
 # 🇷🇺 DevTracker — Multilingual Pet-Project Tracker Bot
 
@@ -174,7 +178,7 @@ create policy "tasks_all" on public.tasks
 ![Aiogram](https://img.shields.io/badge/Aiogram-3.x-blueviolet?logo=telegram&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?logo=supabase&logoColor=white)
 
-> 🇷🇺 **Русский** · 🇬🇧 [English version](#-devtracker--multilingual-pet-project-tracker-bot)
+[🇬🇧 English version](#english-version) | [🇷🇺 Русская версия](#russian-version)
 
 **Асинхронный Telegram-бот** для разработчиков, который помогает трекать **пет-проекты** и связанные с ними **задачи**.
 
@@ -319,6 +323,10 @@ create policy "tasks_all" on public.tasks
 | `profiles` | Пользователи Telegram (`telegram_id`, `username`, `language`) |
 | `projects` | Пет-проекты (`user_id` → `profiles.telegram_id`) |
 | `tasks` | Задачи проекта (`is_done`, связь через `project_id`) |
+
+---
+
+[🇬🇧 English version](#english-version)
 
 ---
 
